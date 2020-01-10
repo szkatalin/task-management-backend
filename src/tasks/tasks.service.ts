@@ -30,8 +30,12 @@ export class TasksService {
   }
 
   getTaskById(taskId: string): Task {
-    // TODO: error handling
-    return this.tasks.find(task => task.id === taskId);
+    const resultTask = this.tasks.find(task => task.id === taskId);
+
+    if (!resultTask) {
+      throw new NotFoundException('Task is not found');
+    }
+    return resultTask;
   }
 
   createTask(createTaskDto: CreateTaskDto): Task {
@@ -57,9 +61,11 @@ export class TasksService {
   }
 
   updateTaskStatus(taskId: string, taskStatus: TaskStatus): Task {
-      const taskIndex = this.tasks.findIndex(task => task.id === taskId);
-      // TODO: status validation
-      this.tasks[taskIndex].status = taskStatus;
-      return this.tasks[taskIndex];
+    const taskIndex = this.tasks.findIndex(task => task.id === taskId);
+    if ( taskIndex === -1) {
+      throw new NotFoundException('Task is not found');
+    }
+    this.tasks[taskIndex].status = taskStatus;
+    return this.tasks[taskIndex];
   }
 }
