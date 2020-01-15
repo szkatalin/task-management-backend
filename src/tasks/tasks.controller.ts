@@ -5,19 +5,17 @@ import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import {TaskStatusValidationPipe} from './pipes/task-status-validation.pipe';
 import { Task } from './task.entity';
 import {DeleteResult} from 'typeorm';
+import {TaskStatus} from './task-status.enum';
 
 @Controller('tasks') // which route should be handled
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
-  // @Get()
-  // getTasks(@Query(ValidationPipe) filterDto: GetTasksFilterDto): Task[] {
-  //   if (Object.keys(filterDto).length) {
-  //     return this.tasksService.getTasksWithFilters(filterDto);
-  //   }
-  //   return this.tasksService.getAllTasks();
-  // }
-  //
+  @Get()
+  getTasks(@Query(ValidationPipe) filterDto: GetTasksFilterDto) {
+    return this.tasksService.getTasks(filterDto);
+  }
+
    @Get(':id')
    getTaskById(@Param('id', ParseIntPipe) taskId: number): Promise<Task> {
      return this.tasksService.getTaskById(taskId);
@@ -34,8 +32,8 @@ export class TasksController {
     return this.tasksService.deleteTask(taskId);
   }
 
-  // @Patch(':id/status')
-  // updateTaskStatus(@Param('id') taskId: string, @Body('status', TaskStatusValidationPipe) taskStatus: TaskStatus): Task {
-  //   return this.tasksService.updateTaskStatus(taskId, taskStatus);
-  // }
+  @Patch(':id/status')
+  updateTaskStatus(@Param('id', ParseIntPipe) taskId: number, @Body('status', TaskStatusValidationPipe) taskStatus: TaskStatus): Promise<Task> {
+    return this.tasksService.updateTaskStatus(taskId, taskStatus);
+  }
 }

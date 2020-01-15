@@ -5,6 +5,7 @@ import {InjectRepository} from '@nestjs/typeorm';
 import {Task} from './task.entity';
 import {TaskStatus} from './task-status.enum';
 import {DeleteResult} from 'typeorm';
+import {GetTasksFilterDto} from './dto/get-tasks-filter.dto';
 
 @Injectable()
 export class TasksService {
@@ -12,26 +13,9 @@ export class TasksService {
     @InjectRepository(TaskRepository) private taskRepository: TaskRepository,
   ) {}
 
-  // getAllTasks(): Task[] {
-  //  return this.taskRepository;
-  // }
-  //
-  // getTasksWithFilters(filterDto: GetTasksFilterDto): Task[] {
-  //   const { status, search } = filterDto;
-  //
-  //   let tasks = this.getAllTasks();
-  //   if (status) {
-  //     tasks = tasks.filter(task => task.status === status);
-  //   }
-  //
-  //   if (search) {
-  //     tasks = tasks.filter(
-  //       task => task.title.includes(search) || task.description.includes(search),
-  //     );
-  //   }
-  //
-  //   return tasks;
-  // }
+  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    return this.taskRepository.getTasks(filterDto);
+  }
 
   async getTaskById(taskId: number): Promise<Task> {
     const resultTask = await this.taskRepository.findOne(taskId);
@@ -45,22 +29,14 @@ export class TasksService {
     return this.taskRepository.createTask(createTaskDto);
   }
 
-  //   this.tasks.push(newTask);
-  //   // it is faster to append the new task (what backend gives back) to the list, and the frontend should not call /tasks to refresh the list
-  //   return newTask;
-  // }
-  //
   async deleteTask(taskId: number): Promise<DeleteResult> {
     const result = await this.taskRepository.delete(taskId);
     return result;
   }
-  //
-  // updateTaskStatus(taskId: string, taskStatus: TaskStatus): Task {
-  //   const taskIndex = this.tasks.findIndex(task => task.id === taskId);
-  //   if ( taskIndex === -1) {
-  //     throw new NotFoundException('Task is not found');
-  //   }
-  //   this.tasks[taskIndex].status = taskStatus;
-  //   return this.tasks[taskIndex];
-  // }
+
+  async updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
+    const task = await this.getTaskById(id);
+    task.status = status;
+    return await task.save();
+  }
 }
